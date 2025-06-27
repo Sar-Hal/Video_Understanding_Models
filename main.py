@@ -53,3 +53,7 @@ async def root():
         "status": "Video Understanding API is running",
         "usage": "POST to /analyze_video/ with a video file and a prompt."
     }
+from fastapi.staticfiles import StaticFiles
+
+# Serve the static/index.html from root path
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
