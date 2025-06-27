@@ -56,3 +56,6 @@ async def analyze_video(file: UploadFile = File(...), prompt: str = Form(...)):
         return JSONResponse(content={"error": str(e)}, status_code=500)
     finally:
         os.remove(file_path)
+@app.get("/")
+async def root():
+    return {"status": "Video Understanding API is running", "usage": "POST to /analyze_video/ with a video file and a prompt."}
