@@ -5,17 +5,19 @@ import os
 import time
 from dotenv import load_dotenv
 import google.generativeai as genai
-from google.generativeai import types
-import json
 
+# Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
-MODEL_ID = "gemini-2.5-flash"
 
+# Configure Gemini API
+genai.configure(api_key=GEMINI_API_KEY)
+MODEL = genai.GenerativeModel("gemini-2.5-flash")
+
+# Initialize FastAPI app
 app = FastAPI()
 
-# Allow CORS for frontend
+# Enable CORS for all origins (adjust in production)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,19 +26,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Upload video file to Gemini
 def upload_video_to_gemini(file_path):
-    video_file = client.files.upload(file=file_path)
+    video_file = genai.upload_file(path=file_path)  # ✅ fixed: use genai.upload_file
 
-    while video_file.state == "PROCESSING":
+    while video_file.state.name == "PROCESSING":
         print("Processing...")
-        time.sleep(10)
-        video_file = client.files.get(name=video_file.name)
+        time.sleep(5)
+        video_file = genai.get_file(video_file.name)
 
-    if video_file.state == "FAILED":
+    if video_file.state.name == "FAILED":
         raise ValueError("Video processing failed")
 
     return video_file
 
+# Analyze endpoint
 @app.post("/analyze_video/")
 async def analyze_video(file: UploadFile = File(...), prompt: str = Form(...)):
     file_path = f"temp_{file.filename}"
@@ -45,10 +49,8 @@ async def analyze_video(file: UploadFile = File(...), prompt: str = Form(...)):
 
     try:
         video_file = upload_video_to_gemini(file_path)
-        response = client.models.generate_content(
-            model=MODEL_ID,
-            contents=[video_file, prompt]
-        )
+        response = MODEL.generate_content([video_file, prompt])
+
         return JSONResponse(content={"result": response.text})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
