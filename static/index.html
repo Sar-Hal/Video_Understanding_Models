@@ -6,7 +6,7 @@
 </head>
 <body>
   <h2>Upload a Video and Enter Prompt</h2>
-  <form id="videoForm" enctype="multipart/form-data">  
+  <form id="videoForm" enctype="multipart/form-data" method="post">  
     <input type="file" name="file" accept="video/*" required><br><br>
     <textarea name="prompt" placeholder="Enter your prompt" rows="4" cols="50" required></textarea><br><br>
     <button type="submit">Submit</button>
