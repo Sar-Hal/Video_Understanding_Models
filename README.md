@@ -31,7 +31,7 @@ pip install -r requirements.txt
 Start the backend server:
 
 ```bash
-python app.py
+python main.py
 ```
 
 The backend exposes an endpoint (e.g., `/api/generate`) that accepts user input and returns Gemini's output.
@@ -51,7 +51,7 @@ Content-Type: application/json
 
 ```
 .
-├── app.py             # Main backend server code
+├── main.py             # Main backend server code
 ├── requirements.txt   # Python dependencies
 └── README.md
 ```
